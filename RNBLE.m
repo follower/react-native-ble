@@ -342,6 +342,15 @@ RCT_EXPORT_METHOD(write:(NSString *)peripheralUuid serviceUuid:(NSString *)servi
         CBCharacteristic *targetCharacteristic = [self getTargetCharacteristic:peripheral serviceUuid:serviceUuid characteristicUuid:characteristicUuid];
         if (targetCharacteristic) {
             [peripheral writeValue:[[NSData alloc] initWithBase64EncodedString:data options:0] forCharacteristic:targetCharacteristic type:withoutResponse ? CBCharacteristicWriteWithoutResponse : CBCharacteristicWriteWithResponse];
+
+            if(withoutResponse){
+                [self.bridge.eventDispatcher sendDeviceEventWithName:@"ble.write" body:@{
+                                                                     @"peripheralUuid": peripheralUuid,
+                                                                     @"serviceUuid": serviceUuid,
+                                                                     @"characteristicUuid": characteristicUuid
+                                                                     }];
+            }
+
         } else {
             NSLog(@"Could not find characteristic for UUID: %@", characteristicUuid);
         }
